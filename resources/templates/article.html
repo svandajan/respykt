@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="resources/style.css" type="text/css"/>
+    <title>${title}</title>
+</head>
+<body>
+<div class="header">
+    <h1 id="header-title">${title}</h1>
+    <h2 id="header-subtitle">${subtitle}</h2>
+    <div class="category">${category}</div>
+    <div class="topics">
+        % for c in topics:
+        <span class="topic-name">${c}</span>
+        % if loop.index < len(topics) - 1:
+        <span class="topic-delim"> &diams; </span>
+        % endif
+        % endfor
+    </div>
+    % if header_image_src is not None:
+    <img class="header-image" src="${header_image_src}"/>
+    % endif
+    <div class="authors">${authors}</div>
+    <div class="date">${date}</div>
+</div>
+${content}
+</body>
+</html>

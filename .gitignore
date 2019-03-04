@@ -1,0 +1,10 @@
+# Ignore ".idea" directory
+.idea/
+# Ignore "data" directory - those are dev resources (mainly offline pages)
+data/
+# Ignore "issue" directory - contains current issue sources, should be deleted after script completion
+issue/
+# Ignore "docs/mako_modules" directory - cache for compilated Mako templates
+docs/mako_modules
+# Ignore "respykt/config.ini" files - contains potentionaly secret data (like login details)
+respykt/config.ini

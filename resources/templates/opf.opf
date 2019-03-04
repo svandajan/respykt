@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="2.0" unique-identifier="uid"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.idpf.org/2007/opf ">
+    <metadata>
+        <dc-metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+            <dc:title>${title}</dc:title>
+            <dc:language>${lang_code}</dc:language>
+            <dc:identifier id="uid">${uid}</dc:identifier>
+            <dc:creator>${author}</dc:creator>
+            <dc:publisher>${creator}</dc:publisher>
+            <dc:subject>periodical</dc:subject>
+            <dc:date>${date_opf}</dc:date>
+            <dc:description/>
+        </dc-metadata>
+
+        <x-metadata>
+            <output encoding="utf-8" content-type="application/x-mobipocket-subscription-magazine"/>
+            <EmbeddedCover>resources/cover.jpg</EmbeddedCover>
+        </x-metadata>
+    </metadata>
+
+    <manifest>
+        <item id="toc" media-type="application/x-dtbncx+xml" href="toc.ncx"/>
+        <item id="tocFile" media-type="application/xhtml+xml" href="toc.html"/>
+        <item id="style" media-type="text/css" href="style.css"/>
+        % for article in $["articles"]
+        <item id="file_0" media-type="application/xhtml+xml" href="files/formated_article_00.html"/>
+        % endfor
+    </manifest>
+
+    <spine toc="toc">
+        <itemref idref="file_0"/>
+    </spine>
+
+    <guide>
+        <reference type="start" title="start" href="files/formated_article_00.html"/>
+        <reference type="toc" title="Table of Contents" href="toc.html"/>
+    </guide>
+</package>
