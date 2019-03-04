@@ -246,7 +246,6 @@ class Respykt:
         self.copy_static_res()
 
     def write_article_file(self, article: Dict[str, Optional[str]]):
-
         with open(article["filepath"], mode="w", encoding="utf8") as fw:
             log_info("creating article file content from template '{tname}' and saving "
                      "to {filepath}'".format(tname=article["template_name"], filepath=article["filepath"]))
@@ -295,7 +294,7 @@ class Respykt:
 
         # render files
         for file_ in files_to_render:
-            with open(file_["filename"], mode="w", encoding="utf8") as fw:
+            with open(file_["filename"], mode="w", encoding="utf-8-sig") as fw:
                 log_info("using template '{tname}' to generate "
                          "file '{filepath}'".format(tname=file_["template"], filepath=file_["filename"]))
                 raw_data = self.templater.serve_template(template_name=file_["template"], **file_["data"])

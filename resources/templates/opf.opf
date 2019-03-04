@@ -15,7 +15,7 @@
 
         <x-metadata>
             <output encoding="utf-8" content-type="application/x-mobipocket-subscription-magazine"/>
-            <EmbeddedCover>resources/cover.jpg</EmbeddedCover>
+            <EmbeddedCover>resources/${cover}</EmbeddedCover>
         </x-metadata>
     </metadata>
 
