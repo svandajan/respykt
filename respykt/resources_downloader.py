@@ -47,14 +47,13 @@ class ResourcesDownloader:
             if extension is not None:
                 new_name += "." + extension
         self.res_list[new_name] = url
-        return path_join(self.data_directory, new_name)
+        return new_name
 
     def download_all(self) -> None:
         for filename, url in self.res_list.items():
             if url[:3] not in ("htt", "ftp"):
                 url = "http://" + url
-            response = self.download(url)
-            data = response.content
+            data = self.download(url)
             with open(path_join(self.data_directory, filename), "wb") as fw:
                 fw.write(data)
             if self.wait_time is not None:

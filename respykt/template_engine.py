@@ -23,7 +23,7 @@ class TemplateEngine(object):
         self.module_directory = module_dir
 
         self.lookup = TemplateLookup(directories=[templates_dir], module_directory=module_dir, collection_size=100,
-                                     output_encoding="utf8", encoding_errors="replace")
+                                     output_encoding="utf8", encoding_errors="replace", input_encoding="utf8")
 
     def serve_template(self, template_name: str, **kwargs) -> str:
         new_template: Template = self.lookup.get_template(template_name)
