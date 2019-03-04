@@ -17,13 +17,13 @@
             <navLabel>
                 <text>${title}</text>
             </navLabel>
-            <content src="${categories[0]['first_filename']}"/>
-            % for category in categories:
+            <content src="${first_filename}"/>
+            % for category_name, category in categories.items():
             <navPoint class="section" id="${'section_{:03d}'.format(category['id'])}" playOrder="1">
                 <navLabel>
                     <text>${category["title"]}</text>
                 </navLabel>
-                <content src="${category['first_filename']}"/>
+                <content src="${category['articles'][0]['filename']}"/>
 
                 % for article in category["articles"]:
                 <navPoint class="article" id="${'section_{:03d}_article_{:03d}'.format(category['id'], article['id'])}"

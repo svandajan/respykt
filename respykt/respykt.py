@@ -4,7 +4,7 @@
 import configparser
 import os
 from os.path import join as path_join
-from typing import Dict, List
+from typing import Dict, List, Union
 
 from bs4 import BeautifulSoup
 from bs4.element import Tag
@@ -24,14 +24,15 @@ class Respykt:
     folder: Dict[str] = None
     issue: Dict[str] = None
     user: Dict[str] = None
-    articles: List[Dict[str, str]] = None
 
     requester: RequestSoap = None
     downloader: ResourcesDownloader = None
     templater: TemplateEngine = None
 
+    articles: List[Dict[str, str]] = None
+    categories: Dict[str, Dict[str, Union[str, List]]] = None
+
     def __init__(self, config_file: str = None, issue: str = None):
-        self.articles = []
         self.session = Session()
         self.folder = {}
         self.url = {"home": "https://www.respekt.cz/"}
@@ -101,17 +102,19 @@ class Respykt:
         toc_page = self.requester.get(self.url["issue"])
 
         articles_raw = toc_page(class_="issuedetail-categorized-item")
+        self.articles = []
+        self.categories = {}
         articles_count = 0
+        categories_count = 0
+
         for art in articles_raw:
             article = {"url": art["href"]}
             if article["url"][:3] != "htt" and article["url"][0] == "/":
                 article["url"] = self.url["home"] + article["url"][1:]
-            article["category"] = get_text(art.find_previous_sibling(class_="issuedetail-categorized-sectionname"))
             article["title"] = get_text(art.find(class_="issuedetail-categorized-title"))
             article["authors"] = get_text(art.find(class_="issuedetail-categorized-author"))
             article["perex"] = get_text(art.find(class_="issuedetail-categorized-perex"))
             article["is_locked"] = True if art.find(class_="lock") is not None else False
-            print(article)
 
             if ("despekt" in article["category"].lower()) or ("anketa" in article["category"].lower()):
                 # those are special cases, will deal with them later
@@ -121,10 +124,32 @@ class Respykt:
                 # hit paywal...
                 continue
 
+            article["no"] = articles_count
+            art_category = get_text(art.find_previous_sibling(class_="issuedetail-categorized-sectionname"))
+            if art_category not in self.categories:
+                categories_count += 1
+                self.categories[art_category] = {"name": art_category, "id": categories_count, "articles": []}
+
+            article["category"] = art_category
+            self.categories[art_category]["articles"].append(article)
+            self.articles.append(article)
+
+    def download_resources(self):
+        self.downloader.download_all()
+
+    def get_articles(self):
+        article_filename_format = "article_{no:04d}.html"
+
+        if self.articles is None:
+            self.parse_toc_page()
+
+        folder_articles = path_join(self.folder["issue"], "html")
+        if not os.path.exists(folder_articles):
+            os.mkdir(folder_articles)
+
+        for article in self.articles:
             # download and parse article page
             soap_article: BeautifulSoup = self.requester.get(article["url"])
-            articles_count += 1
-            article["no"] = articles_count
             article["topics"] = get_text(soap_article.find(class_="post-topics")("a"))
             article["subtitle"] = get_text(soap_article.find("h2", class_="post-subtitle"))
             article["date"] = get_text(soap_article.find(class_="authorship-note"))
@@ -144,18 +169,16 @@ class Respykt:
                 replace_figure_with_img(self.downloader, soap_article, article_figure, max_width=500)
             article["content"] = soap_article_content.prettify()
             article["template_name"] = "article.html"
-            article["filename"] = "article_{no:04d}.html".format(no=article["no"])
-            with open(path_join(self.folder["issue"], article["filename"]), mode="w", encoding="utf8") as fw:
+            article["filename"] = article_filename_format.format(no=article["no"])
+            article["filename"] = path_join(folder_articles, article["filename"])
+            with open(path_join(article["filename"]), mode="w", encoding="utf8") as fw:
                 fw.write(self.templater.serve_template(**article))
 
-    def download_resources(self):
-        self.downloader.download_all()
-
-
-# process articles
-
-categories = []
-category_count = 0
+    def run(self):
+        self.login()
+        self.parse_toc_page()
+        self.get_articles()
+        self.download_resources()
 
 # TODO:
 #   - generate TOC html page
