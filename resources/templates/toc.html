@@ -19,5 +19,11 @@
     </ul>
     % endfor
 </div>
+
+% if username is not None and username != "":
+<div>
+    Toto vydání bylo generováno pro uživatele ${username}. Děkujeme, že tento soubor nešíříte dále.
+</div>
+% endif
 </body>
 </html>

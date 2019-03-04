@@ -4,12 +4,12 @@
     <metadata>
         <dc-metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
             <dc:title>${title}</dc:title>
-            <dc:language>${lang_code}</dc:language>
+            <dc:language>cs</dc:language>
             <dc:identifier id="uid">${uid}</dc:identifier>
-            <dc:creator>${author}</dc:creator>
-            <dc:publisher>${creator}</dc:publisher>
+            <dc:creator>Redakce Respekt</dc:creator>
+            <dc:publisher>Redakce Respekt</dc:publisher>
             <dc:subject>periodical</dc:subject>
-            <dc:date>${date_opf}</dc:date>
+            <dc:date>${date}</dc:date>
             <dc:description/>
         </dc-metadata>
 
@@ -21,19 +21,23 @@
 
     <manifest>
         <item id="toc" media-type="application/x-dtbncx+xml" href="toc.ncx"/>
+        <item id="root" media-type="application/xhtml+xml" href="title.html"/>
         <item id="tocFile" media-type="application/xhtml+xml" href="toc.html"/>
-        <item id="style" media-type="text/css" href="style.css"/>
-        % for article in $["articles"]
-        <item id="file_0" media-type="application/xhtml+xml" href="files/formated_article_00.html"/>
+        <item id="style" media-type="text/css" href="resources/style.css"/>
+        % for article in articles:
+        <item id="${'section_{:03d}_article_{:03d}'.format(int(article['id'] / 100), article['id'] % 100)}"
+              media-type="application/xhtml+xml" href="text/${article['filename']}"/>
         % endfor
     </manifest>
 
     <spine toc="toc">
-        <itemref idref="file_0"/>
+        % for article in articles:
+        <itemref idref="${'section_{:03d}_article_{:03d}'.format(int(article['id'] / 100), article['id'] % 100)}"/>
+        % endfor
     </spine>
 
     <guide>
-        <reference type="start" title="start" href="files/formated_article_00.html"/>
+        <reference type="start" title="start" href="text/article_0101.html"/>
         <reference type="toc" title="Table of Contents" href="toc.html"/>
     </guide>
 </package>

@@ -4,6 +4,7 @@
 import configparser
 import os
 import re
+from hashlib import md5
 from os.path import join as path_join
 from shutil import copy2 as copy_file
 from typing import Dict, List, Union, Optional, Any
@@ -40,6 +41,7 @@ class Respykt:
         self.session = Session()
         self.folder = {}
         self.issue = {}
+        self.user = {}
         self.url = {"home": "https://www.respekt.cz/"}
 
         # Read config file for user-defined settings, load default values to the rest of them
@@ -104,7 +106,7 @@ class Respykt:
             self.dl_wait_time = 0.1
 
     def login(self):
-        if self.user is not None and "username" in self.user and "password" in self.user:
+        if "username" in self.user and "password" in self.user:
             login_postdata = {"username": self.user["username"], "password": self.user["password"],
                               "do": "authBox-loginForm-submit", "_do": "authBox-loginForm-submit"}
             login_url = self.url["home"]
@@ -126,11 +128,38 @@ class Respykt:
         self.url["issue"] = issue_url
         return issue_url
 
+    @staticmethod
+    def get_date_from_datestring(datestring: str):
+        # 51/2002, 16.–23. 12. 2002
+        # 9/2019, 25. 2. – 3. 3. 2019
+        # 9/2019, 25. 2. – 3. 3. 2019
+        # 1/2003, 23. 12. 2002–2. 1. 2003
+        datestring_format = re.compile(
+            r"(\d{1,2})/(\d{4}), ?(\d{1,2})\. ?(\d{1,2})?\.? ?(\d{4})?[–-] ?(\d{1,2})\. ?(\d{1,2})\. ?(\d{4})")
+        issue_datematch = datestring_format.search(datestring).groups()
+        return "{year}{month:02d}{day:02d}".format(year=issue_datematch[-1], month=int(issue_datematch[-2]),
+                                                   day=int(issue_datematch[2]))
+
     def parse_toc_page(self):
         if "issue" not in self.url:
             self.get_current_issue()
         toc_page = self.requester.get(self.url["issue"])
         log_info("parsing TOC page with URL = '{url}'".format(url=self.url["issue"]))
+
+        self.issue["title"] = get_text(toc_page.find(class_="heroissue").h2)
+        self.issue["subtitle"] = get_text(toc_page.find(class_="heroissue").find("div", class_="heroissue-theme"))
+        cover_image = self.downloader.add_url(toc_page.find(class_="heroissue").a["href"])
+        self.issue["cover"] = cover_image
+
+        issue_datestring = get_text(toc_page.find(class_="heroissue").find("time", class_="heroissue-date"))
+        self.issue["datestring"] = issue_datestring
+        self.issue["date"] = self.get_date_from_datestring(issue_datestring)
+        hash_source = md5()
+        hash_source.update("Respekt_".encode("utf8"))
+        hash_source.update(self.issue["date"].encode("utf8"))
+        hash_source.update(self.user["username"].encode("utf8") if "username" in self.user else "(free)".encode("utf8"))
+        self.issue["uid"] = hash_source.hexdigest()
+        self.issue["username"] = self.user["username"] if "username" in self.user else None
 
         articles_raw = toc_page(class_="issuedetail-categorized-item")
         self.articles = []
@@ -157,19 +186,22 @@ class Respykt:
                 # hit paywal...
                 continue
 
-            articles_count += 1
-            article["no"] = articles_count
             if art_category not in categories:
                 categories_count += 1
+                articles_count = 0
                 categories[art_category] = {"name": art_category, "id": categories_count, "articles": []}
+            articles_count += 1
+            article["id"] = categories_count * 100 + articles_count
             categories[art_category]["articles"].append(article)
             self.articles.append(article)
-            log_info("adding article number {count} with title '{title}' of "
-                     "category '{cat}'".format(count=articles_count, title=article["title"], cat=article["category"]))
+            log_info("adding article number {category}/{count} with title '{title}' of "
+                     "category '{cat}'".format(category=categories_count, count=articles_count,
+                                               title=article["title"], cat=article["category"]))
 
         # sort categories by their ids
         self.categories = sorted([cat_dict for cat_name, cat_dict in categories.items()],
                                  key=lambda kv: kv["id"])
+        self.issue["articles"] = self.articles
         self.issue["categories"] = self.categories
 
     def download_resources(self):
@@ -181,8 +213,8 @@ class Respykt:
         if self.articles is None:
             self.parse_toc_page()
 
-        for article in self.articles:
-            log_info("processing article {no}/{count}: '{title}'".format(no=article["no"], count=len(self.articles),
+        for art_no, article in enumerate(self.articles):
+            log_info("processing article {no}/{count}: '{title}'".format(no=art_no + 1, count=len(self.articles),
                                                                          title=article["title"]))
             # download and parse article page
             soap_article: BeautifulSoup = self.requester.get(article["url"])
@@ -237,18 +269,29 @@ class Respykt:
         if not os.path.exists(folder_articles):
             os.mkdir(folder_articles)
 
+        self.issue["date"] = self.get_date_from_datestring(self.issue["datestring"])
+
         # list of files to render using templates
         files_to_render: List[Dict] = []
 
         # add articles to list
-        for article in self.articles:
-            article["filename"] = article_filename_format.format(no=article["no"])
+        for art_no, article in enumerate(self.articles):
+            article["filename"] = article_filename_format.format(no=article["id"])
             article["filepath"] = path_join(folder_articles, article["filename"])
             files_to_render.append({"filename": article["filepath"], "template": "article.html", "data": article})
 
+        # add title page
+        files_to_render.append({"filename": path_join(self.folder["issue"], "title.html"),
+                                "template": "title.html", "data": self.issue})
         # add TOC HTML page
         files_to_render.append({"filename": path_join(self.folder["issue"], "toc.html"),
                                 "template": "toc.html", "data": self.issue})
+        # add TOC NCX file
+        files_to_render.append({"filename": path_join(self.folder["issue"], "toc.ncx"),
+                                "template": "mobi_toc.ncx", "data": self.issue})
+        # add OPF file
+        files_to_render.append({"filename": path_join(self.folder["issue"], "respekt.opf"),
+                                "template": "opf.opf", "data": self.issue})
 
         # render files
         for file_ in files_to_render:

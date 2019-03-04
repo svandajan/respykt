@@ -7,10 +7,13 @@
 # Ignore "__pycache__" folder
 __pycache__/
 
+
 # Development options
 /data/
 *.pickle
 respykt/respykt_dev.py
+/kindlegen.exe
+
 
 # Ignore "/.idea" directory
 /.idea/
