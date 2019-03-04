@@ -9,4 +9,4 @@
 # Ignore "/respykt/config.ini" files - contains potentionaly secret data (like login details)
 /respykt/config.ini
 # Ignore "__pycache__" folder
-__pycache__/*
+__pycache__/
