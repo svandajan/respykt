@@ -231,11 +231,14 @@ class Respykt:
             else:
                 article["header_image_src"] = None
 
-            soap_article_content: Tag = soap_article.find(id="postcontent")
-            for article_figure in soap_article_content("figure"):
-                # replace all figures in article content with simple <img> tag
+            article_content: Tag = soap_article.find(id="postcontent")
+            # replace all figures in article content with simple <img> tag
+            for article_figure in article_content("figure"):
                 replace_figure_with_img(self.downloader, soap_article, article_figure, max_width=500)
-            article["content"] = soap_article_content.prettify()
+            # kindlegen breaks on <blockquote> tags, so get rid of them
+            for quote in article_content(class_="quote"):
+                quote.extract()
+            article["content"] = str(article_content)
 
     def run(self):
         self.login()
@@ -244,13 +247,6 @@ class Respykt:
         self.write_files()
         self.download_resources()
         self.copy_static_res()
-
-    def write_article_file(self, article: Dict[str, Optional[str]]):
-        with open(article["filepath"], mode="w", encoding="utf8") as fw:
-            log_info("creating article file content from template '{tname}' and saving "
-                     "to {filepath}'".format(tname=article["template_name"], filepath=article["filepath"]))
-            raw_data = self.templater.serve_template(**article)
-            fw.write(raw_data)
 
     def copy_static_res(self):
         source_dir = self.folder["static"]
@@ -299,8 +295,3 @@ class Respykt:
                          "file '{filepath}'".format(tname=file_["template"], filepath=file_["filename"]))
                 raw_data = self.templater.serve_template(template_name=file_["template"], **file_["data"])
                 fw.write(raw_data)
-
-# TODO:
-#   - generate TOC html page
-#   - generate toc.ncx and opf file
-#   - create ebooks

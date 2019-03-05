@@ -22,7 +22,7 @@
     <manifest>
         <item id="toc" media-type="application/x-dtbncx+xml" href="toc.ncx"/>
         <item id="root" media-type="application/xhtml+xml" href="title.html"/>
-        <item id="tocFile" media-type="application/xhtml+xml" href="toc.html"/>
+        <item id="section_999" media-type="application/xhtml+xml" href="toc.html"/>
         <item id="style" media-type="text/css" href="resources/style.css"/>
         % for article in articles:
         <item id="${'section_{:03d}_article_{:03d}'.format(int(article['id'] / 100), article['id'] % 100)}"
@@ -34,6 +34,7 @@
         % for article in articles:
         <itemref idref="${'section_{:03d}_article_{:03d}'.format(int(article['id'] / 100), article['id'] % 100)}"/>
         % endfor
+        <itemref idref="section_999"/>
     </spine>
 
     <guide>

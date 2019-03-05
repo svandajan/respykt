@@ -38,6 +38,13 @@
                 % endfor
             </navPoint>
             % endfor
+            <navPoint class="section" id="section_999"
+                      playOrder="9999">
+                <navLabel>
+                    <text>Obsah</text>
+                </navLabel>
+                <content src="toc.html"/>
+            </navPoint>
         </navPoint>
     </navMap>
 </ncx>
