@@ -3,14 +3,24 @@
 
 import os
 from time import sleep
-from typing import Dict, Optional
+from typing import Optional, List
 
 from requests import Session
 from requests import get as pure_get
 
 
+class Resource:
+    url: str = None
+    filename: str = None
+    downloaded: bool = False
+
+    def __init__(self, url: str, filename: str):
+        self.url = url
+        self.filename = filename
+
+
 class ResourcesDownloader:
-    res_list: Dict[str, str] = None
+    resources: List[Resource] = None
     data_directory: str = None
     session: Session = None
     wait_time: float = None
@@ -22,7 +32,7 @@ class ResourcesDownloader:
         if not os.path.exists(data_dir):
             os.mkdir(data_dir)
 
-        self.res_list = {}
+        self.resources = []
         self.session = session
         # we don't want to overload the server...
         self.wait_time = wait_time
@@ -42,19 +52,22 @@ class ResourcesDownloader:
             else:
                 new_name = "resource_"
             # add number of resource, starting with 0
-            new_name += "{c:04d}".format(c=len(self.res_list) + 1)
+            new_name += "{c:04d}".format(c=len(self.resources) + 1)
             if extension is not None:
                 new_name += "." + extension
-        self.res_list[new_name] = url
+        self.resources.append(Resource(url=url, filename=new_name))
         return new_name
 
     def download_all(self) -> None:
-        for filename, url in self.res_list.items():
-            if url[:3] not in ("htt", "ftp"):
-                url = "http://" + url
-            data = self.download(url)
-            with open(os.path.join(self.data_directory, filename), "wb") as fw:
+        for resource in self.resources:  # type: Resource
+            if resource.downloaded:
+                continue
+            if resource.url[:3] not in ("htt", "ftp"):
+                resource.url = "http://" + resource.url
+            data = self.download(resource.url)
+            with open(os.path.join(self.data_directory, resource.filename), "wb") as fw:
                 fw.write(data)
+            resource.downloaded = True
             if self.wait_time is not None:
                 sleep(self.wait_time)
 
