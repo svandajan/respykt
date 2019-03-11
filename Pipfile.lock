@@ -159,10 +159,10 @@
         },
         "pdoc3": {
             "hashes": [
-                "sha256:1124004173612e1afd7bed3e948aae56e2523f92050b4584f49e7c971474c23f"
+                "sha256:8e11ef161c3dcd68d5a434d38ae55e2f8f5719470429d64e9b187d87e5f1d8d6"
             ],
             "index": "pypi",
-            "version": "==0.5.2"
+            "version": "==0.5.3"
         }
     }
 }

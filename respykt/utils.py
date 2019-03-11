@@ -9,10 +9,10 @@ from bs4.element import Tag, ResultSet
 from resources_downloader import ResourcesDownloader
 
 
-def log(message: str, type: str) -> None:
-    if type.upper() == "ERROR":
+def log(message: str, type_: str) -> None:
+    if type_.upper() == "ERROR":
         print("Error - " + message)
-    elif type.upper() == "INFO":
+    elif type_.upper() == "INFO":
         print("(info) - " + message)
     else:
         print(message)
@@ -90,7 +90,7 @@ def replace_figure_with_img(res_dl: ResourcesDownloader, parent: BeautifulSoup, 
         return None
     try:
         alt_text = get_text(figure.figcaption)
-    except TypeError as e_type:
+    except TypeError:
         # no "figcaption" of figure
         try:
             alt_text = figure.img["alt"]

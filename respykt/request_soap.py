@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from typing import Dict, Optional
+from typing import Optional, Mapping
 
 from bs4 import BeautifulSoup
 from requests import Session, Response
@@ -51,7 +51,7 @@ class RequestSoap:
             return None
 
     @staticmethod
-    def soap_post(url: str, data: Dict[str, str], session: Session = None) -> Optional[BeautifulSoup]:
+    def soap_post(url: str, data: Mapping[str, str], session: Session = None) -> Optional[BeautifulSoup]:
         # use "post" function of Session if it is not None
         if session is None:
             post = pure_post
@@ -70,7 +70,7 @@ class RequestSoap:
     def get(self, url: str) -> Optional[BeautifulSoup]:
         return RequestSoap.soap_get(url=url, session=self.session)
 
-    def post(self, url: str, data: Dict[str, str]) -> Optional[BeautifulSoup]:
+    def post(self, url: str, data: Mapping[str, str]) -> Optional[BeautifulSoup]:
         return RequestSoap.soap_post(url=url, session=self.session, data=data)
 
     def get_session(self):

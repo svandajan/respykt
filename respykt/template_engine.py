@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-from os.path import join as path_join
 
 from mako.lookup import TemplateLookup
 from mako.template import Template
@@ -13,8 +12,8 @@ class TemplateEngine(object):
     module_directory: str = None
     lookup: TemplateLookup = None
 
-    def __init__(self, templates_dir: str = path_join("..", "resources", "templates"),
-                 module_dir: str = path_join("..", "resources", "mako_modules")) -> None:
+    def __init__(self, templates_dir: str = os.path.join("..", "resources", "templates"),
+                 module_dir: str = os.path.join("..", "resources", "mako_modules")) -> None:
         if module_dir is None:
             module_dir = "templates"
         if not os.path.exists(module_dir):

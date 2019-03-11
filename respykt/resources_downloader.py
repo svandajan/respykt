@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-from os.path import join as path_join
 from time import sleep
 from typing import Dict, Optional
 
@@ -18,7 +17,7 @@ class ResourcesDownloader:
 
     def __init__(self, data_dir: str = None, wait_time: float = None, session: Session = None) -> None:
         if data_dir is None:
-            data_dir = path_join("issue", "resources")
+            data_dir = os.path.join("issue", "resources")
         self.data_directory = data_dir
         if not os.path.exists(data_dir):
             os.mkdir(data_dir)
@@ -54,7 +53,7 @@ class ResourcesDownloader:
             if url[:3] not in ("htt", "ftp"):
                 url = "http://" + url
             data = self.download(url)
-            with open(path_join(self.data_directory, filename), "wb") as fw:
+            with open(os.path.join(self.data_directory, filename), "wb") as fw:
                 fw.write(data)
             if self.wait_time is not None:
                 sleep(self.wait_time)

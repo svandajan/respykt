@@ -5,7 +5,6 @@ import configparser
 import os
 import re
 from hashlib import md5
-from os.path import join as path_join
 from shutil import copy2 as copy_file
 from typing import Dict, List, Union, Optional, Any
 
@@ -18,22 +17,24 @@ from resources_downloader import ResourcesDownloader
 from template_engine import TemplateEngine
 from utils import get_text, replace_figure_with_img, log_error, log_info
 
+StringDict = Dict[str, Optional[str, List]]
+
 
 class Respykt:
     config_file: str = None
     session: Session = None
     dl_wait_time: float = None
-    url: Dict[str, str] = None
-    folder: Dict[str, str] = None
-    issue: Dict[str, Union[str, List]] = None
-    user: Dict[str, str] = None
+    url: StringDict = None
+    folder: StringDict = None
+    issue: StringDict = None
+    user: StringDict = None
 
     requester: RequestSoap = None
     downloader: ResourcesDownloader = None
     templater: TemplateEngine = None
 
-    articles: List[Dict[str, Optional[str]]] = None
-    categories: List[Dict[str, Union[str, List]]] = None
+    articles: List[StringDict] = None
+    categories: List[StringDict] = None
 
     _issue_url_pattern = re.compile(r"respekt\.cz/tydenik/([0-9]{4})/([0-9]+)")
 
@@ -95,13 +96,13 @@ class Respykt:
 
         if "issue" not in self.folder:
             self.folder["issue"] = "issue"
-        self.folder["issue_res"] = path_join(self.folder["issue"], "resources")
+        self.folder["issue_res"] = os.path.join(self.folder["issue"], "resources")
         if "templates" not in self.folder:
-            self.folder["templates"] = path_join("resources", "templates")
+            self.folder["templates"] = os.path.join("resources", "templates")
         if "mako_modules" not in self.folder:
-            self.folder["mako_modules"] = path_join("resources", "mako_modules")
+            self.folder["mako_modules"] = os.path.join("resources", "mako_modules")
         if "static" not in self.folder:
-            self.folder["static"] = path_join("resources", "static")
+            self.folder["static"] = os.path.join("resources", "static")
         if self.dl_wait_time is None:
             self.dl_wait_time = 0.1
 
@@ -255,12 +256,12 @@ class Respykt:
                  "to resource dir '{dest}'".format(source=source_dir, dest=dest_dir))
         for filename in os.listdir(source_dir):
             log_info("  '{filename}'".format(filename=filename))
-            copy_file(path_join(source_dir, filename), path_join(dest_dir, filename))
+            copy_file(os.path.join(source_dir, filename), os.path.join(dest_dir, filename))
 
     def write_files(self):
         # prepare folder for article files
         article_filename_format = "article_{no:04d}.html"
-        folder_articles = path_join(self.folder["issue"], "text")
+        folder_articles = os.path.join(self.folder["issue"], "text")
         if not os.path.exists(folder_articles):
             os.mkdir(folder_articles)
 
@@ -272,20 +273,20 @@ class Respykt:
         # add articles to list
         for art_no, article in enumerate(self.articles):
             article["filename"] = article_filename_format.format(no=article["id"])
-            article["filepath"] = path_join(folder_articles, article["filename"])
+            article["filepath"] = os.path.join(folder_articles, article["filename"])
             files_to_render.append({"filename": article["filepath"], "template": "article.html", "data": article})
 
         # add title page
-        files_to_render.append({"filename": path_join(self.folder["issue"], "title.html"),
+        files_to_render.append({"filename": os.path.join(self.folder["issue"], "title.html"),
                                 "template": "title.html", "data": self.issue})
         # add TOC HTML page
-        files_to_render.append({"filename": path_join(self.folder["issue"], "toc.html"),
+        files_to_render.append({"filename": os.path.join(self.folder["issue"], "toc.html"),
                                 "template": "toc.html", "data": self.issue})
         # add TOC NCX file
-        files_to_render.append({"filename": path_join(self.folder["issue"], "toc.ncx"),
+        files_to_render.append({"filename": os.path.join(self.folder["issue"], "toc.ncx"),
                                 "template": "mobi_toc.ncx", "data": self.issue})
         # add OPF file
-        files_to_render.append({"filename": path_join(self.folder["issue"], "respekt.opf"),
+        files_to_render.append({"filename": os.path.join(self.folder["issue"], "respekt.opf"),
                                 "template": "opf.opf", "data": self.issue})
 
         # render files
