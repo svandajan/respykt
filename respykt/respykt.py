@@ -6,7 +6,7 @@ import os
 import re
 from hashlib import md5
 from shutil import copy2 as copy_file
-from typing import Dict, List, Union, Optional, Any
+from typing import Dict, List, Union, Any
 
 from bs4 import BeautifulSoup
 from bs4.element import Tag
@@ -17,7 +17,7 @@ from resources_downloader import ResourcesDownloader
 from template_engine import TemplateEngine
 from utils import get_text, replace_figure_with_img, log_error, log_info
 
-StringDict = Dict[str, Optional[str, List]]
+StringDict = Dict[str, Union[str, List, None]]
 
 
 class Respykt:
@@ -88,6 +88,9 @@ class Respykt:
         if "DONWLOAD" in config:
             if "wait_time" in config["DOWNLOAD"]:
                 self.dl_wait_time = config["DOWNLOAD"]["wait_time"]
+        for folder in self.folder.values():
+            if not os.path.isdir(folder):
+                os.mkdir(folder)
 
     def load_conf_default(self) -> None:
         """
