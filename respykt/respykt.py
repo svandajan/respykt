@@ -12,10 +12,10 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag
 from requests import Session
 
-from request_soap import RequestSoap
-from resources_downloader import ResourcesDownloader
-from template_engine import TemplateEngine
-from utils import get_text, replace_figure_with_img, log_error, log_info
+from .request_soap import RequestSoap
+from .resources_downloader import ResourcesDownloader
+from .template_engine import TemplateEngine
+from .utils import get_text, replace_figure_with_img, log_error, log_info
 
 StringDict = Dict[str, Union[str, List, None]]
 
@@ -278,6 +278,9 @@ class Respykt:
             article["filename"] = article_filename_format.format(no=article["id"])
             article["filepath"] = os.path.join(folder_articles, article["filename"])
             files_to_render.append({"filename": article["filepath"], "template": "article.html", "data": article})
+
+        # add TOC page at the end of first category
+        pass
 
         # add title page
         files_to_render.append({"filename": os.path.join(self.folder["issue"], "title.html"),

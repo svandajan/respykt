@@ -3,13 +3,14 @@
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title>Obsah</title>
+    <title>Respekt ${year}/${number} - Obsah</title>
     <link rel="stylesheet" href="resources/style.css" type="text/css"/>
 </head>
 <body>
-<h2>Obsah</h2>
+<h2>Respekt ${year}/${number} - Obsah</h2>
 
 <div>
+    <h3><a href="title.html">Obálka</a></h3>
     % for category in categories:
     <h3><a href="text/${category['articles'][0]['filename']}">${category["name"]}</a></h3>
     <ul>
@@ -22,7 +23,7 @@
 
 % if username is not None and username != "":
 <div>
-    Toto vydání bylo generováno pro uživatele ${username}. Děkujeme, že tento soubor nešíříte dále.
+    Toto vydání bylo generováno pro uživatele &quot;${username}&quot;. Děkujeme, že tento soubor nešíříte dále.
 </div>
 % endif
 </body>

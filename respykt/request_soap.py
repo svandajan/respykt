@@ -9,7 +9,7 @@ from requests import get as pure_get
 from requests import post as pure_post
 from requests.exceptions import RequestException
 
-from utils import log_error
+from .utils import log_error
 
 
 class RequestSoap:

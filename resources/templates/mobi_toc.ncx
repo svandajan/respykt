@@ -7,7 +7,7 @@
         <meta name="dtb:maxPageNumber" content="0"/>
     </head>
     <docTitle>
-        <text>${title}</text>
+        <text>Respekt</text>
     </docTitle>
     <docAuthor>
         <text>Redakce Respekt</text>
@@ -34,12 +34,17 @@
                         <text>${article["title"]}</text>
                     </navLabel>
                     <content src="text/${article['filename']}"/>
+                    % if article["perex"] is not None and article["perex"] != "":
+                    <mbp:meta name="description">${article["perex"]}</mbp:meta>
+                    % endif
+                    % if article["authors"] is not None and article["authors"] != "":
+                    <mbp:meta name="author">${article["authors"]}</mbp:meta>
+                    % endif
                 </navPoint>
                 % endfor
             </navPoint>
             % endfor
-            <navPoint class="section" id="section_999"
-                      playOrder="9999">
+            <navPoint class="section" id="section_999" playOrder="9999">
                 <navLabel>
                     <text>Obsah</text>
                 </navLabel>

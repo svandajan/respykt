@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.idpf.org/2007/opf ">
     <metadata>
         <dc-metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
-            <dc:title>${title}</dc:title>
+            <dc:title>Respekt ${year}/${number}</dc:title>
             <dc:language>cs</dc:language>
             <dc:identifier id="uid">${uid}</dc:identifier>
             <dc:creator>Redakce Respekt</dc:creator>

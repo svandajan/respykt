@@ -1,10 +1,12 @@
 # Parsing *Respekt* Web Pages
 
+    Documents Respekt webpage structure as of 3/2019
+
 Parsing is done by BeautifulSoap4, mainly using functions `find_all` and `find`,
 called from current tag (e.g. `items = html.find_all(class_="issuedetail-categorized-item")`
 for getting list of all articles). Because the function `[tag].find_all(...)` is so heavily 
 used, it could be shortcutted to just `[tag](...)` (e.g. `items = html(class_="issuedetail-categorized-item")`
-from the previous example). 
+from the previous example).  
 
 ### Search for issue URL on homepage
 
