@@ -12,9 +12,9 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag
 from requests import Session
 
+from binding.template_engine import TemplateEngine
 from .request_soap import RequestSoap
 from .resources_downloader import ResourcesDownloader
-from .template_engine import TemplateEngine
 from .utils import get_text, replace_figure_with_img, log_error, log_info
 
 StringDict = Dict[str, Union[str, List, None]]
