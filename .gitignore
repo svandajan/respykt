@@ -11,7 +11,7 @@ __pycache__/
 # Development options
 /data/
 *.pickle
-respykt/respykt_dev.py
+respykt_dev.py
 /kindlegen.exe
 
 

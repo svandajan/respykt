@@ -6,7 +6,7 @@ from typing import Optional, Union, List
 from bs4 import BeautifulSoup
 from bs4.element import Tag, ResultSet
 
-from resources_downloader import ResourcesDownloader
+from .resources_downloader import ResourcesDownloader
 
 
 def log(message: str, type_: str) -> None:
@@ -26,13 +26,16 @@ def log_info(message: str) -> None:
     log(message, "INFO")
 
 
-def return_max_figure_source(sourceset: str, width: int) -> Optional[str]:
+def return_max_figure_source(sourceset: str, width: int = None) -> Optional[str]:
     """
     Returns source with less than or equal specified width
     :param sourceset: string like 'url1 180w, url2 320w, url3 640w'
-    :param width: maximum allowed width
+    :param width: maximum allowed width, if None, uses MAXINT to get maximum width
     :return:
     """
+    # python3 doesn't have MAXINT value, so we use this value as quite large width
+    if width is None:
+        width = 2 ** 31 - 1
     try:
         # create dictionary with pairs of (width: 'url') like {180: 'url1', 320: 'url2', 640: 'url3'}
         sources = {int(s.split(" ")[1][:-1]): s.split(" ")[0] for s in sourceset.split(", ")}
@@ -70,6 +73,7 @@ def get_text(tag: Union[Tag, ResultSet]) -> Union[str, List[str]]:
 
 def replace_figure_with_img(res_dl: ResourcesDownloader, parent: BeautifulSoup, figure: Tag, max_width=1024,
                             image_folder: str = "../resources", return_src: bool = False) -> Optional[Union[Tag, str]]:
+    # get source data from either 'srcset' or 'src' tags
     try:
         srcset: str = figure.img["srcset"]
         src: str = return_max_figure_source(srcset, max_width)
@@ -88,6 +92,7 @@ def replace_figure_with_img(res_dl: ResourcesDownloader, parent: BeautifulSoup, 
     if src is None or src == "":
         log_error("Error - replace_figure_with_img: no source image found")
         return None
+    # get alternative text (caption)
     try:
         alt_text = get_text(figure.figcaption)
     except TypeError:
@@ -99,6 +104,7 @@ def replace_figure_with_img(res_dl: ResourcesDownloader, parent: BeautifulSoup, 
             alt_text = None
     new_src = image_folder + "/" + res_dl.add_url(src)
     img = parent.new_tag("img", src=new_src, alt=alt_text)
+    # BeautifulSoup function for tag replacement
     figure.replace_with(img)
     if return_src:
         return new_src

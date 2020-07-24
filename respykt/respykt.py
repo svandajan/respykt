@@ -122,7 +122,7 @@ class Respykt:
         self.url["issue"] = "https://www.respekt.cz/tydenik/{year}/{number}".format(year=year, number=number)
 
     def get_current_issue(self) -> str:
-        log_info("issue not set, searching home page current one")
+        log_info("issue not set, searching home page for current one")
         home_page = self.requester.get(self.url["home"])
 
         issue_url = home_page.find(class_="currentissue").a["href"]
